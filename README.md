@@ -58,7 +58,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/husobee/vestigo"
+	"bitbucket.org/dluc/vestigo"
 )
 
 func main() {
@@ -203,6 +203,6 @@ _Please use gofmt and golint before trying to contribute._
 
 [echo-main]: https://github.com/labstack/echo
 [echo-main-license]: https://github.com/labstack/echo/blob/master/LICENSE
-[vestigo-main-license]: https://github.com/husobee/vestigo/blob/master/LICENSE
+[vestigo-main-license]: https://bitbucket.org/dluc/vestigo/blob/master/LICENSE
 [http-perf-test]: https://github.com/julienschmidt/go-http-routing-benchmark
 [http-perf-test-license]: https://github.com/julienschmidt/go-http-routing-benchmark/blob/master/LICENSE
