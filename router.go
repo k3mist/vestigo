@@ -6,6 +6,8 @@
 package vestigo
 
 import (
+	"bytes"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -27,8 +29,25 @@ type Middleware func(http.HandlerFunc) http.HandlerFunc
 
 // Router - The main vestigo router data structure
 type Router struct {
-	root       *node
-	globalCors *CorsAccessControl
+	root         *node
+	globalCors   *CorsAccessControl
+	BufferWriter *BufferWriter
+}
+
+// BufferWriter ...
+type BufferWriter struct {
+	http.ResponseWriter
+	buf *bytes.Buffer
+}
+
+// Write ...
+func (w *BufferWriter) Write(p []byte) (int, error) {
+	return w.buf.Write(p)
+}
+
+// BufferString ...
+func (w *BufferWriter) Bytes() []byte {
+	return w.buf.Bytes()
 }
 
 // NewRouter - Create a new vestigo router
@@ -37,6 +56,7 @@ func NewRouter() *Router {
 		root: &node{
 			resource: newResource(),
 		},
+		BufferWriter: &BufferWriter{buf: &bytes.Buffer{}},
 	}
 }
 
@@ -64,7 +84,12 @@ func (r *Router) SetCors(path string, c *CorsAccessControl) {
 // ServeHTTP - implementation of a http.Handler, making Router a http.Handler
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	h := r.Find(req)
-	h(w, req)
+	r.BufferWriter.ResponseWriter = w
+
+	h(r.BufferWriter, req)
+
+	_, _ = io.Copy(w, r.BufferWriter.buf)
+	r.BufferWriter.buf.Reset()
 }
 
 // Get - Helper method to add HTTP GET Method to router
