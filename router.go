@@ -7,9 +7,11 @@ package vestigo
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -45,7 +47,7 @@ func (w *BufferWriter) Write(p []byte) (int, error) {
 	return w.buf.Write(p)
 }
 
-// BufferString ...
+// Bytes ...
 func (w *BufferWriter) Bytes() []byte {
 	return w.buf.Bytes()
 }
@@ -83,12 +85,14 @@ func (r *Router) SetCors(path string, c *CorsAccessControl) {
 
 // ServeHTTP - implementation of a http.Handler, making Router a http.Handler
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	h := r.Find(req)
 	r.BufferWriter.ResponseWriter = w
-
+	h := r.Find(req)
 	h(r.BufferWriter, req)
 
-	_, _ = io.Copy(w, r.BufferWriter.buf)
+	if _, err := io.Copy(w, r.BufferWriter.buf); err != nil {
+		fmt.Println(errors.WithStack(err))
+	}
+	
 	r.BufferWriter.buf.Reset()
 }
 
