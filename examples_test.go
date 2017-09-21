@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"bitbucket.org/dluc/vestigo"
+	"github.com/husobee/vestigo"
 )
 
 func ExampleManyRoutes() {
